@@ -11,6 +11,7 @@ public:
 	virtual ~ JerkEstimator();
 	Eigen::Vector3d computeJerkEstimation(const Eigen::Quaterniond q, const Eigen::Vector3d a_imu,
 		const Eigen::Vector3d angular_velocity_imu, double thrust, double thrust_dot);
+	void setBiases(const Eigen::Vector3d ba, const Eigen::Vector3d bg);
 private:
 
 	double mass_, gravity_, drag_coeff_, gamma_ = 0.0;
@@ -19,6 +20,10 @@ private:
 	Eigen::Vector3d e1_;
 	Eigen::Vector3d e2_;
 	Eigen::Vector3d e3_;
+
+	// IMU biases
+	Eigen::Vector3d ba_;
+	Eigen::Vector3d bg_;
 };
 
 #endif /* JERKESTIMATOR_V12020_H */
