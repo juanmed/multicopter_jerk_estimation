@@ -12,10 +12,12 @@ public:
 	Eigen::Vector3d computeJerkEstimation(const Eigen::Quaterniond q, const Eigen::Vector3d a_imu,
 		const Eigen::Vector3d angular_velocity_imu, double thrust, double thrust_dot);
 	void setBiases(const Eigen::Vector3d ba, const Eigen::Vector3d bg);
+	bool initialized();
 private:
 
 	double mass_, gravity_, drag_coeff_, gamma_ = 0.0;
-
+	bool bias_initialized_;
+	
 	// basis vector generating R^3
 	Eigen::Vector3d e1_;
 	Eigen::Vector3d e2_;
