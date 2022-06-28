@@ -17,7 +17,7 @@ JerkEstimator::JerkEstimator(double mass, double gravity, double drag_coeff)
 }
 
 Eigen::Vector3d JerkEstimator::computeJerkEstimation(const Eigen::Quaterniond q, const Eigen::Vector3d a_imu,
-	const Eigen::Vector3d angular_velocity_imu, double thrust, double thrust_dot)
+	const Eigen::Vector3d angular_velocity_imu, const Eigen::Vector3d v, double thrust, double thrust_dot)
 {
 	// from body to world rotation
 	Eigen::Matrix3d Rbw = q.toRotationMatrix();	
@@ -29,7 +29,9 @@ Eigen::Vector3d JerkEstimator::computeJerkEstimation(const Eigen::Quaterniond q,
 
 	a = Rbw * (a_imu - ba_) - gravity_ * e3_;
 	angular_velocity = angular_velocity_imu - bg_;
-	j = (thrust_dot * zbw + thrust * (angular_velocity(1) * xbw - angular_velocity(0) * ybw) - gamma_ * a) / mass_ ;
+	gamma_ = computeGamma(thrust);
+	double gamma_dot_ = computeGammaDot(thrust_dot);
+	j = (thrust_dot * zbw + thrust * (angular_velocity(1) * xbw - angular_velocity(0) * ybw) - gamma_ * a - gamma_dot_ * v) / mass_ ;
 	return j;
 }
 
@@ -41,6 +43,16 @@ void JerkEstimator::setBiases(const Eigen::Vector3d ba, const Eigen::Vector3d bg
 		bias_initialized_ = true;
 		std::cout << "Jerk Estimator Initialized!" << std::endl;
 	}
+}
+
+double JerkEstimator::computeGamma(double thrust)
+{
+	return (thrust*k_ + n_*b_)*drag_coeff_;
+}
+
+double JerkEstimator::computeGammaDot(double thrust_dot)
+{
+	return thrust_dot * k_ * drag_coeff_;
 }
 
 bool JerkEstimator::initialized()
